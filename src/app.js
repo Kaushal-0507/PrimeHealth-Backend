@@ -1,11 +1,32 @@
+require("dotenv").config();
 const express = require("express");
-
+const { connectDB } = require("./config/database");
+const User = require("./models/user");
 const app = express();
+const PORT = 7000;
 
-app.use("/", (req, res) => {
-  res.send("This is your server");
+app.post("/signup", async (req, res) => {
+  const obj = {
+    firstName: "Kaushal",
+    lastName: "Kishore",
+    age: 21,
+    email: "kaushal@gmail.com",
+    gender: "male",
+  };
+
+  const user = new User(obj);
+
+  await user.save();
+  res.send("User Added");
 });
 
-app.listen(7000, () => {
-  console.log("The server is running on port 7000!");
-});
+connectDB()
+  .then(() => {
+    console.log("Database is successfully connected!!!");
+    app.listen(PORT, () => {
+      console.log("The server is running on port 7000!");
+    });
+  })
+  .catch(() => {
+    console.log("Database failed to connect!!!");
+  });
