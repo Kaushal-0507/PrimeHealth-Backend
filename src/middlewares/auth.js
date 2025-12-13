@@ -1,14 +1,20 @@
-const express = require("express");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 
-const app = express();
+const userAuth = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) throw new Error("No Token Found!!!");
+    const decodedData = await jwt.verify(token, process.env.JWT_SECRET);
 
-const userAuth = (req, res, next) => {
-  const authorizedToken = "asd";
-  const token = "asdc";
-  if (authorizedToken !== token) {
-    res.status(401).send("Unauthorized Access!!!");
-  } else {
+    const { id } = decodedData;
+    const user = await User.findById(id);
+    if (!user) throw new Error("No User Found!!!");
+
+    req.user = user;
     next();
+  } catch (error) {
+    res.status(400).send("Error: " + error.message);
   }
 };
 
